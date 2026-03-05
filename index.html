@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>VidSave – Video Downloader</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      min-height: 100vh;
+      background: #0f0f13;
+      font-family: 'Segoe UI', sans-serif;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 20px;
+    }
+    .logo {
+      font-size: 2.2rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #a78bfa, #60a5fa);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 6px;
+    }
+    .tagline { color: #6b7280; font-size: 0.95rem; margin-bottom: 40px; }
+    .card {
+      background: #1a1a24;
+      border: 1px solid #2a2a3a;
+      border-radius: 20px;
+      padding: 36px;
+      width: 100%;
+      max-width: 560px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+    }
+    .platforms {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 28px;
+      justify-content: center;
+    }
+    .platform-badge {
+      background: #252535;
+      border: 1px solid #333348;
+      border-radius: 20px;
+      padding: 5px 14px;
+      font-size: 0.75rem;
+      color: #a78bfa;
+      font-weight: 600;
+    }
+    label { display: block; font-size: 0.85rem; color: #9ca3af; margin-bottom: 10px; font-weight: 500; }
+    .input-row { display: flex; gap: 10px; margin-bottom: 20px; }
+    input[type="text"] {
+      flex: 1;
+      background: #0f0f18;
+      border: 1px solid #2a2a3a;
+      border-radius: 12px;
+      padding: 14px 16px;
+      color: #fff;
+      font-size: 0.95rem;
+      outline: none;
+      transition: border 0.2s;
+    }
+    input[type="text"]:focus { border-color: #a78bfa; }
+    input[type="text"]::placeholder { color: #3f3f5a; }
+    button#downloadBtn {
+      background: linear-gradient(135deg, #a78bfa, #60a5fa);
+      border: none;
+      border-radius: 12px;
+      padding: 14px 22px;
+      color: #fff;
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.1s;
+      white-space: nowrap;
+    }
+    button#downloadBtn:hover { opacity: 0.9; transform: scale(1.02); }
+    button#downloadBtn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+    .status-box {
+      background: #0f0f18;
+      border: 1px solid #2a2a3a;
+      border-radius: 12px;
+      padding: 14px 16px;
+      font-size: 0.88rem;
+      color: #9ca3af;
+      min-height: 50px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transition: all 0.3s;
+    }
+    .status-box.success { border-color: #34d399; color: #34d399; }
+    .status-box.error   { border-color: #f87171; color: #f87171; }
+    .status-box.loading { border-color: #a78bfa; color: #a78bfa; }
+    .spinner {
+      width: 18px; height: 18px;
+      border: 2px solid #a78bfa44;
+      border-top-color: #a78bfa;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      flex-shrink: 0;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .footer { margin-top: 30px; color: #3f3f5a; font-size: 0.78rem; text-align: center; }
+  </style>
+</head>
+<body>
+
+  <div class="logo">⬇ VidSave</div>
+  <p class="tagline">Download videos from anywhere</p>
+
+  <div class="card">
+    <div class="platforms">
+      <span class="platform-badge">YouTube</span>
+      <span class="platform-badge">Instagram</span>
+      <span class="platform-badge">Facebook</span>
+      <span class="platform-badge">Twitter/X</span>
+      <span class="platform-badge">Snapchat</span>
+      <span class="platform-badge">TikTok</span>
+    </div>
+
+    <label>Video URL</label>
+    <div class="input-row">
+      <input type="text" id="videoUrl" placeholder="Paste YouTube, Instagram, TikTok link..." />
+      <button id="downloadBtn" onclick="downloadVideo()">Download</button>
+    </div>
+
+    <div class="status-box" id="statusBox">
+      Paste a video link above and hit Download.
+    </div>
+  </div>
+
+  <p class="footer">Powered by yt-dlp · For personal use only</p>
+
+  <script>
+    async function downloadVideo() {
+      const videoUrl = document.getElementById('videoUrl').value.trim();
+      const btn = document.getElementById('downloadBtn');
+
+      if (!videoUrl) { setStatus('error', '⚠️ Please paste a video URL.'); return; }
+
+      btn.disabled = true;
+      setStatus('loading', 'Downloading video, please wait...');
+
+      try {
+        const response = await fetch('/download', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ url: videoUrl })
+        });
+
+        if (!response.ok) {
+          const err = await response.json();
+          setStatus('error', '❌ Error: ' + (err.error || 'Something went wrong.'));
+          return;
+        }
+
+        const blob = await response.blob();
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'video.mp4';
+        a.click();
+
+        setStatus('success', '✅ Video downloaded successfully!');
+        document.getElementById('videoUrl').value = '';
+
+      } catch (err) {
+        setStatus('error', '❌ Something went wrong. Check the server.');
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    function setStatus(type, message) {
+      const box = document.getElementById('statusBox');
+      box.className = 'status-box ' + type;
+      box.innerHTML = type === 'loading' ? `<div class="spinner"></div> ${message}` : message;
+    }
+
+    document.addEventListener('keydown', e => { if (e.key === 'Enter') downloadVideo(); });
+  </script>
+
+</body>
+</html>
