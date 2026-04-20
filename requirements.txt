@@ -1,2 +1,5 @@
 flask
-yt-dlp
+yt_dlp
+selenium
+requests
+webdriver-manager

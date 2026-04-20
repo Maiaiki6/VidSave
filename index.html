@@ -2,254 +2,546 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>VidSave – Video Downloader</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VidSave | Video Downloader</title>
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --bg-top: #060816;
+      --bg-bottom: #0d1324;
+      --surface: rgba(10, 15, 28, 0.92);
+      --surface-strong: #10182b;
+      --text: #f4f7fb;
+      --muted: #95a2b8;
+      --border: rgba(164, 180, 205, 0.14);
+      --shadow: 0 28px 70px rgba(0, 0, 0, 0.38);
+      --primary: #14b8a6;
+      --primary-strong: #0f766e;
+      --primary-soft: rgba(20, 184, 166, 0.14);
+      --loading: #60a5fa;
+      --loading-soft: rgba(29, 78, 216, 0.16);
+      --success: #86efac;
+      --success-soft: rgba(22, 101, 52, 0.18);
+      --error: #fca5a5;
+      --error-soft: rgba(185, 28, 28, 0.18);
+      --radius-xl: 32px;
+      --radius-lg: 24px;
+      --radius-md: 18px;
+      --radius-sm: 14px;
+      --max-width: 620px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
     body {
       min-height: 100vh;
-      background: #0f0f13;
-      font-family: 'Segoe UI', sans-serif;
-      color: #fff;
+      font-family: "Segoe UI", "Trebuchet MS", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(20, 184, 166, 0.16), transparent 28%),
+        radial-gradient(circle at bottom right, rgba(29, 78, 216, 0.18), transparent 30%),
+        linear-gradient(180deg, var(--bg-top) 0%, var(--bg-bottom) 100%);
+      display: grid;
+      place-items: center;
+      padding: 20px;
+    }
+
+    .app-shell {
+      width: min(100%, var(--max-width));
+      background: var(--surface);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(14px);
+      padding: 28px;
+    }
+
+    .brand {
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 40px 16px;
-    }
-
-    .header {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 6px;
-    }
-
-    .logo-icon {
-      width: 42px;
-      height: 42px;
-      background: linear-gradient(135deg, #a78bfa, #60a5fa);
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.3rem;
-    }
-
-    .logo {
-      font-size: 2rem;
-      font-weight: 800;
-      background: linear-gradient(135deg, #a78bfa, #60a5fa);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-
-    .tagline { color: #6b7280; font-size: 0.9rem; margin-bottom: 32px; }
-
-    .card {
-      background: #1a1a24;
-      border: 1px solid #2a2a3a;
-      border-radius: 24px;
-      padding: 28px 20px;
-      width: 100%;
-      max-width: 560px;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.4);
-    }
-
-    .platforms {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
+      gap: 16px;
       margin-bottom: 28px;
-      justify-content: center;
+      text-align: center;
     }
 
-    .platform-badge {
-      background: #252535;
-      border: 1px solid #333348;
+    .brand-logo {
+      width: 72px;
+      height: 72px;
+      display: grid;
+      place-items: center;
       border-radius: 20px;
-      padding: 6px 16px;
-      font-size: 0.8rem;
-      color: #a78bfa;
-      font-weight: 600;
+      background: #0b1324;
+      border: 1px solid var(--border);
+      box-shadow: 0 14px 30px rgba(0, 0, 0, 0.26);
+      font-size: 1.75rem;
+      font-weight: 800;
+      letter-spacing: -0.08em;
+      color: var(--text);
+      text-transform: uppercase;
     }
 
-    label {
+    .brand-copy h1 {
+      font-size: clamp(2.1rem, 6vw, 2.9rem);
+      line-height: 1;
+      letter-spacing: -0.04em;
+      margin-bottom: 8px;
+    }
+
+    .brand-copy p {
+      color: var(--muted);
+      line-height: 1.6;
+      font-size: 0.98rem;
+    }
+
+    .download-panel {
+      background: var(--surface-strong);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 22px;
+    }
+
+    .download-panel label {
       display: block;
-      font-size: 0.85rem;
-      color: #9ca3af;
       margin-bottom: 10px;
-      font-weight: 500;
+      font-size: 0.92rem;
+      font-weight: 700;
+      color: #d6e1f0;
     }
 
-    .input-group {
+    .input-row {
       display: flex;
-      flex-direction: column;
-      gap: 10px;
-      margin-bottom: 16px;
+      gap: 12px;
+      align-items: stretch;
+    }
+
+    .input-wrap {
+      flex: 1;
+      position: relative;
+    }
+
+    .input-prefix {
+      position: absolute;
+      left: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #7f91ab;
+      font-size: 0.82rem;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      pointer-events: none;
     }
 
     input[type="text"] {
       width: 100%;
-      background: #0f0f18;
-      border: 1px solid #2a2a3a;
-      border-radius: 14px;
-      padding: 16px;
-      color: #fff;
+      min-height: 60px;
+      border: 1px solid rgba(164, 180, 205, 0.14);
+      border-radius: var(--radius-sm);
+      background: #0a1222;
+      color: var(--text);
+      padding: 0 18px 0 58px;
       font-size: 1rem;
       outline: none;
-      transition: border 0.2s;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
     }
 
-    input[type="text"]:focus { border-color: #a78bfa; }
-    input[type="text"]::placeholder { color: #3f3f5a; }
+    input[type="text"]::placeholder {
+      color: #73839c;
+    }
 
-    button#downloadBtn {
+    input[type="text"]:focus {
+      border-color: rgba(20, 184, 166, 0.45);
+      box-shadow: 0 0 0 4px rgba(20, 184, 166, 0.12);
+      background: #0e1729;
+    }
+
+    select {
       width: 100%;
-      background: linear-gradient(135deg, #a78bfa, #60a5fa);
-      border: none;
-      border-radius: 14px;
-      padding: 16px;
-      color: #fff;
+      min-height: 60px;
+      border: 1px solid rgba(164, 180, 205, 0.14);
+      border-radius: var(--radius-sm);
+      background: #0a1222;
+      color: var(--text);
+      padding: 0 18px;
       font-size: 1rem;
-      font-weight: 700;
-      cursor: pointer;
-      transition: opacity 0.2s, transform 0.1s;
-      letter-spacing: 0.3px;
+      outline: none;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+      background-position: right 12px center;
+      background-repeat: no-repeat;
+      background-size: 16px;
+      padding-right: 40px;
     }
 
-    button#downloadBtn:active { transform: scale(0.98); opacity: 0.9; }
-    button#downloadBtn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+    select:focus {
+      border-color: rgba(20, 184, 166, 0.45);
+      box-shadow: 0 0 0 4px rgba(20, 184, 166, 0.12);
+      background: #0e1729;
+    }
+
+    button {
+      min-width: 168px;
+      border: none;
+      border-radius: var(--radius-sm);
+      background: linear-gradient(135deg, var(--primary-strong), var(--primary));
+      color: #ffffff;
+      font-size: 1rem;
+      font-weight: 800;
+      letter-spacing: 0.01em;
+      cursor: pointer;
+      padding: 0 24px;
+      box-shadow: 0 16px 28px rgba(20, 184, 166, 0.16);
+      transition: transform 0.14s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 20px 34px rgba(20, 184, 166, 0.22);
+    }
+
+    button:active {
+      transform: translateY(1px);
+    }
+
+    button:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .progress {
+      margin-top: 16px;
+      height: 8px;
+      border-radius: 999px;
+      background: rgba(148, 163, 184, 0.16);
+      border: 1px solid rgba(148, 163, 184, 0.12);
+      overflow: hidden;
+      opacity: 0;
+      transform: translateY(-4px);
+      transition: opacity 0.2s ease, transform 0.2s ease;
+    }
+
+    .progress.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .progress-bar {
+      width: 0%;
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, #14b8a6, #38bdf8);
+    }
 
     .status-box {
-      background: #0f0f18;
-      border: 1px solid #2a2a3a;
-      border-radius: 14px;
+      margin-top: 18px;
+      min-height: 76px;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border);
+      background: #0a1222;
       padding: 16px;
-      font-size: 0.9rem;
-      color: #9ca3af;
-      min-height: 54px;
       display: flex;
-      align-items: center;
-      gap: 10px;
-      transition: all 0.3s;
-      line-height: 1.4;
+      gap: 14px;
+      align-items: flex-start;
+      transition: border-color 0.2s ease, background 0.2s ease;
     }
 
-    .status-box.success { border-color: #34d399; color: #34d399; }
-    .status-box.error   { border-color: #f87171; color: #f87171; }
-    .status-box.loading { border-color: #a78bfa; color: #a78bfa; }
-
-    .spinner {
-      width: 20px; height: 20px;
-      border: 2px solid #a78bfa44;
-      border-top-color: #a78bfa;
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
+    .status-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 12px;
+      display: grid;
+      place-items: center;
+      background: var(--primary-soft);
+      color: var(--primary);
+      font-size: 0.9rem;
+      font-weight: 800;
       flex-shrink: 0;
     }
 
-    @keyframes spin { to { transform: rotate(360deg); } }
+    .status-copy {
+      min-width: 0;
+    }
 
-    .footer { margin-top: 28px; color: #3f3f5a; font-size: 0.78rem; text-align: center; }
+    .status-title {
+      font-size: 0.96rem;
+      font-weight: 800;
+      margin-bottom: 4px;
+    }
 
-    /* Tablet and up: side by side button */
-    @media (min-width: 480px) {
-      .input-group {
-        flex-direction: row;
+    .status-message {
+      color: var(--muted);
+      line-height: 1.5;
+      font-size: 0.92rem;
+      word-break: break-word;
+    }
+
+    .status-box.loading {
+      border-color: rgba(96, 165, 250, 0.2);
+      background: #0d1b37;
+    }
+
+    .status-box.loading .status-icon {
+      background: rgba(96, 165, 250, 0.14);
+      color: var(--loading);
+    }
+
+    .status-box.loading .status-title,
+    .status-box.loading .status-message {
+      color: #9cc0ff;
+    }
+
+    .status-box.success {
+      border-color: rgba(134, 239, 172, 0.16);
+      background: var(--success-soft);
+    }
+
+    .status-box.success .status-icon {
+      background: rgba(134, 239, 172, 0.12);
+      color: var(--success);
+    }
+
+    .status-box.success .status-title,
+    .status-box.success .status-message {
+      color: var(--success);
+    }
+
+    .status-box.error {
+      border-color: rgba(252, 165, 165, 0.16);
+      background: var(--error-soft);
+    }
+
+    .status-box.error .status-icon {
+      background: rgba(252, 165, 165, 0.1);
+      color: var(--error);
+    }
+
+    .status-box.error .status-title,
+    .status-box.error .status-message {
+      color: var(--error);
+    }
+
+    .spinner {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      border: 2px solid rgba(96, 165, 250, 0.2);
+      border-top-color: var(--loading);
+      animation: spin 0.85s linear infinite;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
       }
-      button#downloadBtn {
-        width: auto;
-        white-space: nowrap;
-        padding: 16px 24px;
+    }
+
+    @media (max-width: 640px) {
+      body {
+        padding: 14px;
+      }
+
+      .app-shell {
+        padding: 20px;
+        border-radius: 24px;
+      }
+
+      .brand-logo {
+        width: 60px;
+        height: 60px;
+        border-radius: 16px;
+      }
+
+      .download-panel {
+        padding: 18px;
+      }
+
+      .input-row {
+        flex-direction: column;
+      }
+
+      button {
+        min-height: 56px;
+        width: 100%;
       }
     }
   </style>
 </head>
 <body>
+  <main class="app-shell">
+    <header class="brand">
+      <div class="brand-logo" aria-hidden="true">VS</div>
+      <div class="brand-copy">
+        <h1>VidSave</h1>
+        <p>Paste a video URL and download it quickly.</p>
+      </div>
+    </header>
 
-  <div class="header">
-    <div class="logo-icon">⬇</div>
-    <div class="logo">VidSave</div>
-  </div>
-  <p class="tagline">Download videos from anywhere</p>
+    <section class="download-panel">
+      <label for="videoUrl">Video URL</label>
+      <div class="input-row">
+        <div class="input-wrap">
+          <span class="input-prefix" aria-hidden="true">URL</span>
+          <input
+            type="text"
+            id="videoUrl"
+            placeholder="Paste video link here"
+            autocomplete="off"
+            autocorrect="off"
+            autocapitalize="off"
+            spellcheck="false"
+            inputmode="url"
+          />
+        </div>
+        <button id="downloadBtn" type="button">Download</button>
+      </div>
 
-  <div class="card">
-    <div class="platforms">
-      <span class="platform-badge">YouTube</span>
-      <span class="platform-badge">Instagram</span>
-      <span class="platform-badge">Facebook</span>
-      <span class="platform-badge">Twitter/X</span>
-      <span class="platform-badge">Snapchat</span>
-      <span class="platform-badge">TikTok</span>
-    </div>
+      <label for="quality">Quality</label>
+      <select id="quality">
+        <option value="best">Best MP4 Available</option>
+        <option value="1080p">1080p</option>
+        <option value="720p">720p</option>
+        <option value="audio">Audio</option>
+      </select>
 
-    <label>Video URL</label>
-    <div class="input-group">
-      <input type="text" id="videoUrl"
-        placeholder="Paste video link here..."
-        autocomplete="off"
-        autocorrect="off"
-        autocapitalize="off"
-        spellcheck="false"
-      />
-      <button id="downloadBtn" onclick="downloadVideo()">⬇ Download</button>
-    </div>
+      <div class="progress" id="progressBar" aria-hidden="true">
+        <div class="progress-bar"></div>
+      </div>
 
-    <div class="status-box" id="statusBox">
-      Paste a video link above and hit Download.
-    </div>
-  </div>
+      <div id="progressText" style="margin-top: 8px; font-size: 0.9rem; color: var(--muted); text-align: center;"></div>
 
-  <p class="footer">Powered by yt-dlp · For personal use only</p>
+      <div class="status-box" id="statusBox" role="status" aria-live="polite">
+        <div class="status-icon" id="statusIcon" aria-hidden="true">i</div>
+        <div class="status-copy">
+          <div class="status-title" id="statusTitle">Ready</div>
+          <div class="status-message" id="statusMessage">Paste a link above and tap Download.</div>
+        </div>
+      </div>
+    </section>
+  </main>
 
   <script>
+    const videoUrlInput = document.getElementById("videoUrl");
+    const downloadBtn = document.getElementById("downloadBtn");
+    const progressBar = document.getElementById("progressBar");
+    const progressText = document.getElementById("progressText");
+
+    downloadBtn.addEventListener("click", downloadVideo);
+    videoUrlInput.addEventListener("keydown", function (event) {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        downloadVideo();
+      }
+    });
+
+    function updateProgress() {
+      fetch('/progress')
+        .then(res => res.json())
+        .then(data => {
+          if (data.percent !== undefined) {
+            const percent = Math.min(data.percent, 100);
+            progressBar.querySelector('.progress-bar').style.width = percent + '%';
+            let text = `Downloading: ${percent.toFixed(1)}%`;
+            if (data.speed) {
+              text += ` | Speed: ${(data.speed / 1024 / 1024).toFixed(2)} MB/s`;
+            }
+            if (data.eta) {
+              text += ` | ETA: ${Math.floor(data.eta / 60)}:${(data.eta % 60).toString().padStart(2, '0')}`;
+            }
+            if (data.filename) {
+              text += ` | ${data.filename.split('/').pop()}`;
+            }
+            progressText.textContent = text;
+          }
+        })
+        .catch(() => {});
+    }
+
     async function downloadVideo() {
-      const videoUrl = document.getElementById('videoUrl').value.trim();
-      const btn = document.getElementById('downloadBtn');
+      const videoUrl = videoUrlInput.value.trim();
+      const quality = document.getElementById("quality").value;
 
-      if (!videoUrl) { setStatus('error', '⚠️ Please paste a video URL.'); return; }
+      if (!videoUrl) {
+        setStatus("error", "Missing URL", "Paste a video URL before downloading.");
+        videoUrlInput.focus();
+        return;
+      }
 
-      btn.disabled = true;
-      setStatus('loading', 'Downloading video, please wait...');
+      downloadBtn.disabled = true;
+      progressBar.classList.add("visible");
+      progressText.textContent = "Preparing download...";
+      setStatus("loading", "Downloading", "Your request is being processed. This may take a moment.");
+
+      const progressInterval = setInterval(updateProgress, 1000);
 
       try {
-        const response = await fetch('/download', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ url: videoUrl })
+        const response = await fetch("/download", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ url: videoUrl, quality: quality })
         });
 
         if (!response.ok) {
-          const err = await response.json();
-          setStatus('error', '❌ Error: ' + (err.error || 'Something went wrong.'));
+          let errorMessage = "Something went wrong.";
+
+          try {
+            const errorData = await response.json();
+            errorMessage = errorData.error || errorMessage;
+          } catch (parseError) {
+            errorMessage = "The server returned an unexpected error.";
+          }
+
+          setStatus("error", "Download failed", errorMessage);
           return;
         }
 
         const blob = await response.blob();
-        const a = document.createElement('a');
-        a.href = URL.createObjectURL(blob);
-        a.download = 'video.mp4';
-        a.click();
+        const downloadUrl = URL.createObjectURL(blob);
+        const anchor = document.createElement("a");
+        anchor.href = downloadUrl;
+        anchor.download = response.headers.get('Content-Disposition')?.split('filename=')[1]?.replace(/"/g, '') || 'download';
+        document.body.appendChild(anchor);
+        anchor.click();
+        anchor.remove();
+        URL.revokeObjectURL(downloadUrl);
 
-        setStatus('success', '✅ Video saved! Check your Downloads folder.');
-        document.getElementById('videoUrl').value = '';
-
-      } catch (err) {
-        setStatus('error', '❌ Could not connect to server. Is Flask running?');
+        videoUrlInput.value = "";
+        setStatus("success", "Download complete", quality === 'audio' ? "The audio was saved successfully." : "The video was saved successfully.");
+      } catch (error) {
+        setStatus("error", "Connection issue", "Could not reach the server. Make sure the Flask app is running.");
       } finally {
-        btn.disabled = false;
+        downloadBtn.disabled = false;
+        progressBar.classList.remove("visible");
+        progressText.textContent = "";
+        clearInterval(progressInterval);
       }
     }
 
-    function setStatus(type, message) {
-      const box = document.getElementById('statusBox');
-      box.className = 'status-box ' + type;
-      box.innerHTML = type === 'loading'
-        ? `<div class="spinner"></div> ${message}`
-        : message;
+    function setStatus(type, title, message) {
+      const statusBox = document.getElementById("statusBox");
+      const statusIcon = document.getElementById("statusIcon");
+      const statusTitle = document.getElementById("statusTitle");
+      const statusMessage = document.getElementById("statusMessage");
+
+      statusBox.className = "status-box " + type;
+      statusTitle.textContent = title;
+      statusMessage.textContent = message;
+
+      if (type === "loading") {
+        statusIcon.innerHTML = '<div class="spinner" aria-hidden="true"></div>';
+      } else if (type === "success") {
+        statusIcon.textContent = "OK";
+      } else if (type === "error") {
+        statusIcon.textContent = "!";
+      } else {
+        statusIcon.textContent = "i";
+      }
     }
   </script>
-
 </body>
 </html>
