@@ -153,7 +153,7 @@ def download():
             output_path = os.path.join(DOWNLOAD_FOLDER, f"{unique_id}.mp4")
             cleanup_paths = [output_path]
             
-            # Download using requests
+            
             response = requests.get(video_url, stream=True, timeout=30)
             if response.status_code != 200:
                 raise Exception("Failed to download video from Threads")
@@ -164,7 +164,7 @@ def download():
             
             return send_file(output_path, as_attachment=True, download_name=f"{title}.mp4")
 
-        # Regular yt-dlp downloads for other platforms
+        
         if quality == 'audio':
             ext = 'mp3'
             ydl_format = 'bestaudio/best'
